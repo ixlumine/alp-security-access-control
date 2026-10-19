@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toko Ku — Seller Center</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white text-zinc-900 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- ======================================================== -->
+  <!-- TOP UTILITY BAR: COMPACT PERSONA SWITCHER & NAV -->
+  <!-- ======================================================== -->
+  <aside aria-label="Quick Navigation" class="border-b border-zinc-100 bg-zinc-50/60 text-xs py-2 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Left: Role Portals & Customer Links -->
+      <div class="flex items-center gap-3 text-[11px] text-zinc-500">
+        <a href="/" class="hover:text-zinc-900 transition flex items-center gap-1 font-medium text-zinc-800">
+          <i class="fa-solid fa-arrow-left text-[10px]"></i>
+          <span>Ke Storefront</span>
+        </a>
+        <span class="text-zinc-300">|</span>
+        <span class="font-medium text-zinc-900">Seller Center</span>
+        <a href="admin.html" class="hover:text-zinc-900 transition">Panel Admin</a>
+        <a href="dashboard.html" class="hover:text-zinc-900 transition">Security Dashboard</a>
+      </div>
+
+      <!-- Right: Persona Switcher -->
+      <div class="flex items-center gap-2 text-[11px]">
+        <span class="text-zinc-400 font-medium hidden md:inline">Akun Demo:</span>
+        <div class="inline-flex items-center gap-1">
+          <button data-persona="seller_tech" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Seller Tech
+          </button>
+          <button data-persona="seller_fashion" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Seller Fashion
+          </button>
+          <button data-persona="customer_regular" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Customer
+          </button>
+          <button data-persona="admin" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Admin
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MAIN NAVBAR: UNIFIED HEADER -->
+  <!-- ======================================================== -->
+  <header class="border-b border-zinc-100 bg-white sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-2 cursor-pointer select-none" onclick="window.location.href='index.html'">
+        <span class="font-bold text-lg tracking-tight text-zinc-900">Toko Ku</span>
+        <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600">Seller Center</span>
+      </div>
+
+      <!-- Unified Page Navigation -->
+      <nav class="hidden md:flex items-center gap-1 text-xs">
+        <a href="index.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Storefront</a>
+        <a href="seller.html" class="px-3 py-1.5 rounded-md font-semibold text-zinc-900 bg-zinc-100 transition">Seller Center</a>
+        <a href="admin.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Admin Panel</a>
+        <a href="dashboard.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Security Lab Matrix</a>
+      </nav>
+
+      <!-- Active Session User Pill & Account Actions -->
+      <div class="flex items-center gap-2">
+        <div id="userProfileCard" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-zinc-200 text-xs bg-white">
+          <div class="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[10px] font-semibold" id="userAvatar">
+            S
+          </div>
+          <span id="profileUsername" class="font-medium text-zinc-800">seller_tech</span>
+          <span id="roleBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200">SELLER</span>
+          <span id="tierBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">regular</span>
+          <span id="verifiedBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200">Verified</span>
+        </div>
+
+        <a href="login.html" class="px-2.5 py-1 rounded-md border border-zinc-200 hover:bg-zinc-100 text-zinc-700 transition font-medium text-xs flex items-center gap-1.5" title="Ganti Akun / Switch Persona">
+          <i class="fa-solid fa-users text-zinc-500"></i>
+          <span class="hidden sm:inline">Ganti Akun</span>
+        </a>
+
+        <button onclick="handleLogout()" class="px-2.5 py-1 rounded-md border border-zinc-200 hover:bg-red-50 hover:text-red-600 text-zinc-700 transition font-medium text-xs flex items-center gap-1.5" title="Keluar dari Sesi">
+          <i class="fa-solid fa-arrow-right-from-bracket text-zinc-500"></i>
+          <span class="hidden sm:inline">Logout</span>
+        </button>
+
+        <button id="resetSeedBtn" title="Reset Database ke Baseline Awal" class="p-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-500 hover:text-zinc-900 transition text-xs">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ALERT NOTIFICATION BANNER -->
+  <div id="authAlertBanner" class="hidden border-b border-zinc-200 bg-zinc-50 text-xs transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 flex items-center justify-between gap-3">
+      <div id="alertBox" class="flex items-center gap-2">
+        <i id="alertIcon" class="fa-solid fa-circle-check text-zinc-700"></i>
+        <div>
+          <span id="alertTitle" class="font-semibold text-zinc-900 mr-1.5">Notifikasi</span>
+          <span id="alertMessage" class="text-zinc-600">Pesan otorisasi...</span>
+        </div>
+      </div>
+      <button onclick="hideAlert()" class="text-zinc-400 hover:text-zinc-600">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN SELLER CONTENT -->
+  <!-- ======================================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex-1 w-full flex flex-col gap-8">
+
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="text-lg font-bold text-zinc-900" id="sellerStoreTitle">Seller Center</h1>
+          <span id="currentRoleIndicatorSeller" class="text-[10px] font-mono px-2 py-0.5 rounded font-medium uppercase bg-zinc-100 text-zinc-700 border border-zinc-200">ROLE: SELLER</span>
+        </div>
+        <p class="text-xs text-zinc-500 mt-0.5">Kelola produk &amp; persetujuan refund toko (Plafon wewenang seller &le; Rp 500.000).</p>
+      </div>
+      <button onclick="loadSellerOrders(); loadSellerProducts();" class="px-3 py-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition flex items-center gap-1.5 self-start sm:self-auto">
+        <i class="fa-solid fa-rotate text-xs"></i>
+        <span>Refresh Data</span>
+      </button>
+    </div>
+
+    <!-- Hidden compatibility anchor -->
+    <div id="sellerAccessDenied" class="hidden"></div>
+
+    <!-- Seller Dashboard Grid -->
+    <div id="sellerDashboardContent" class="flex flex-col gap-8">
+      
+      <!-- 2 Columns: Add Product & Orders -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Form Tambah Produk (RBAC) -->
+        <div class="border border-zinc-200 rounded-xl p-5 flex flex-col gap-4 bg-white">
+          <div class="border-b border-zinc-100 pb-3">
+            <h2 class="font-semibold text-sm text-zinc-900">Tambah Produk Baru</h2>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Wewenang RBAC: <code>products:create</code></p>
+          </div>
+
+          <form id="createProductForm" onsubmit="handleCreateProduct(event)" class="space-y-3.5 text-xs">
+            <div>
+              <label class="block text-zinc-700 font-medium mb-1">Nama Produk</label>
+              <input type="text" id="newProdName" required placeholder="Nama produk..." class="w-full border border-zinc-200 rounded-md px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900 transition">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-zinc-700 font-medium mb-1">Kategori</label>
+                <select id="newProdCategory" class="w-full border border-zinc-200 rounded-md px-2.5 py-2 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900 transition bg-white">
+                  <option value="electronics">Elektronik</option>
+                  <option value="fashion">Fashion</option>
+                  <option value="accessories">Aksesoris</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-zinc-700 font-medium mb-1">Harga (Rp)</label>
+                <input type="number" id="newProdPrice" required placeholder="Contoh: 150000" class="w-full border border-zinc-200 rounded-md px-3 py-2 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900 transition">
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <input type="checkbox" id="newProdVip" class="w-3.5 h-3.5 rounded border-zinc-300 text-zinc-900 focus:ring-0">
+              <label for="newProdVip" class="text-zinc-600 text-xs">Eksklusif Member VIP (ABAC)</label>
+            </div>
+
+            <button type="submit" class="w-full py-2 bg-zinc-900 hover:bg-black text-white rounded-md text-xs font-medium transition">
+              Publikasikan Produk
+            </button>
+          </form>
+        </div>
+
+        <!-- Orders & Refund Approvals (Combined RBAC + ABAC) -->
+        <div class="lg:col-span-2 border border-zinc-200 rounded-xl p-5 flex flex-col gap-4 bg-white">
+          <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+            <div>
+              <h2 class="font-semibold text-sm text-zinc-900">Pesanan Masuk &amp; Persetujuan Refund</h2>
+              <p class="text-[11px] text-zinc-500 mt-0.5">Penjual dapat menyetujui refund toko sendiri dengan nilai &le; Rp 500.000.</p>
+            </div>
+            <button onclick="loadSellerOrders()" class="p-1 rounded text-zinc-400 hover:text-zinc-700 transition">
+              <i class="fa-solid fa-rotate text-xs"></i>
+            </button>
+          </div>
+
+          <div id="sellerOrdersContainer" class="flex flex-col gap-2 max-h-96 overflow-y-auto">
+            <!-- Dynamic order rows -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Section: Produk Toko Saya -->
+      <div class="border border-zinc-200 rounded-xl p-5 flex flex-col gap-4 bg-white">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div>
+            <h2 class="font-semibold text-sm text-zinc-900">Daftar Produk Toko</h2>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Penghapusan produk memerlukan wewenang kepemilikan dan 0 transaksi aktif.</p>
+          </div>
+          <button onclick="loadSellerProducts()" class="p-1 rounded text-zinc-400 hover:text-zinc-700 transition">
+            <i class="fa-solid fa-rotate text-xs"></i>
+          </button>
+        </div>
+
+        <div id="sellerProductsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+          <!-- Dynamic products -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-zinc-100 bg-white text-xs text-zinc-400 mt-auto py-5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
+      <div>
+        <span class="font-medium text-zinc-700">Toko Ku</span>
+        <span class="mx-1">&bull;</span>
+        <span>Seller Center</span>
+      </div>
+      <div>
+        ALP Cyber Security &bull; Mahasiswa: Budiman Nurhadi (1076012514005)
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

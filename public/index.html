@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toko Ku — E-Commerce Authorization & Security</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white text-zinc-900 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- ======================================================== -->
+  <!-- TOP UTILITY BAR: COMPACT PERSONA SWITCHER & NAV -->
+  <!-- ======================================================== -->
+  <aside aria-label="Quick Navigation" class="border-b border-zinc-100 bg-zinc-50/60 text-xs py-2 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Left: Role Navigation Links -->
+      <div class="flex items-center gap-3 text-[11px] text-zinc-500">
+        <span class="font-medium text-zinc-800">E-Commerce Authorization & Security</span>
+        <span class="text-zinc-300">|</span>
+        <a href="seller.html" class="hover:text-zinc-900 transition">Seller Center</a>
+        <a href="admin.html" class="hover:text-zinc-900 transition">Panel Admin</a>
+        <a href="dashboard.html" class="hover:text-zinc-900 transition">Security Dashboard</a>
+      </div>
+
+      <!-- Right: One-Click Persona Switcher -->
+      <div class="flex items-center gap-2 text-[11px]">
+        <span class="text-zinc-400 font-medium hidden md:inline">One-Click Persona Switcher:</span>
+        <div class="inline-flex items-center gap-1">
+          <button data-persona="customer_regular" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Customer
+          </button>
+          <button data-persona="customer_vip" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            VIP
+          </button>
+          <button data-persona="seller_tech" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Seller Tech
+          </button>
+          <button data-persona="seller_fashion" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Seller Fashion
+          </button>
+          <button data-persona="admin" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Admin
+          </button>
+          <button data-persona="mock_google" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Google
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MAIN NAVBAR: UNIFIED HEADER -->
+  <!-- ======================================================== -->
+  <header class="border-b border-zinc-100 bg-white sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-2 cursor-pointer select-none" onclick="window.location.href='index.html'">
+        <span class="font-bold text-lg tracking-tight text-zinc-900">Toko Ku</span>
+        <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600">Store</span>
+      </div>
+
+      <!-- Unified Page Navigation -->
+      <nav class="hidden md:flex items-center gap-1 text-xs">
+        <a href="index.html" class="px-3 py-1.5 rounded-md font-semibold text-zinc-900 bg-zinc-100 transition">Storefront</a>
+        <a href="seller.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Seller Center</a>
+        <a href="admin.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Admin Panel</a>
+        <a href="dashboard.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Security Lab Matrix</a>
+      </nav>
+
+      <!-- Active Session User Pill & Account Actions -->
+      <div class="flex items-center gap-2">
+        <div id="userProfileCard" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-zinc-200 text-xs bg-white">
+          <div class="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[10px] font-semibold" id="userAvatar">
+            U
+          </div>
+          <span id="profileUsername" class="font-medium text-zinc-800">customer_regular</span>
+          <span id="roleBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200">CUSTOMER</span>
+          <span id="tierBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">regular</span>
+          <span id="verifiedBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200">Verified</span>
+        </div>
+
+        <a href="login.html" class="px-2.5 py-1 rounded-md border border-zinc-200 hover:bg-zinc-100 text-zinc-700 transition font-medium text-xs flex items-center gap-1.5" title="Ganti Akun / Switch Persona">
+          <i class="fa-solid fa-users text-zinc-500"></i>
+          <span class="hidden sm:inline">Ganti Akun</span>
+        </a>
+
+        <button onclick="handleLogout()" class="px-2.5 py-1 rounded-md border border-zinc-200 hover:bg-red-50 hover:text-red-600 text-zinc-700 transition font-medium text-xs flex items-center gap-1.5" title="Keluar dari Sesi">
+          <i class="fa-solid fa-arrow-right-from-bracket text-zinc-500"></i>
+          <span class="hidden sm:inline">Logout</span>
+        </button>
+
+        <button id="resetSeedBtn" title="Reset Database ke Baseline Awal" class="p-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-500 hover:text-zinc-900 transition text-xs">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- ALERT NOTIFICATION BANNER (FEEDBACK TOAST) -->
+  <!-- ======================================================== -->
+  <div id="authAlertBanner" class="hidden border-b border-zinc-200 bg-zinc-50 text-xs transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 flex items-center justify-between gap-3">
+      <div id="alertBox" class="flex items-center gap-2">
+        <i id="alertIcon" class="fa-solid fa-circle-check text-zinc-700"></i>
+        <div>
+          <span id="alertTitle" class="font-semibold text-zinc-900 mr-1.5">Notifikasi</span>
+          <span id="alertMessage" class="text-zinc-600">Pesan otorisasi...</span>
+        </div>
+      </div>
+      <button onclick="hideAlert()" class="text-zinc-400 hover:text-zinc-600">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN STOREFRONT CONTENT -->
+  <!-- ======================================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-8 py-6 flex-1 w-full">
+
+    <!-- Storefront View Tabs -->
+    <div class="flex items-center gap-2 border-b border-zinc-100 pb-3 mb-6">
+      <button onclick="switchNavTab('storefront')" id="nav-storefront" class="nav-item active px-3 py-1.5 rounded-md text-xs font-semibold bg-zinc-900 text-white transition">
+        Katalog
+      </button>
+      <button onclick="switchNavTab('vip-deals')" id="nav-vip-deals" class="nav-item px-3 py-1.5 rounded-md text-xs font-medium text-zinc-500 hover:text-zinc-900 transition flex items-center gap-1.5">
+        <span>VIP Deals</span>
+        <span class="text-[9px] px-1 rounded bg-amber-100 text-amber-800 font-semibold">VIP</span>
+      </button>
+      <button onclick="switchNavTab('my-orders')" id="nav-my-orders" class="nav-item px-3 py-1.5 rounded-md text-xs font-medium text-zinc-500 hover:text-zinc-900 transition flex items-center gap-1.5">
+        <span>Pesanan Saya</span>
+        <span id="orderCountBadge" class="text-[9px] px-1 rounded bg-zinc-100 text-zinc-600 font-semibold font-mono">0</span>
+      </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: KATALOG UTAMA -->
+    <!-- ========================================== -->
+    <section id="view-storefront" class="view-panel flex flex-col gap-6">
+      
+      <!-- Catalog Header & Category Filters -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-zinc-100">
+        <div>
+          <h1 class="text-lg font-bold text-zinc-900">Katalog Produk</h1>
+          <p class="text-xs text-zinc-500 mt-0.5" id="productTotalCount">Memuat produk...</p>
+        </div>
+
+        <!-- Minimal Category Filter Pills -->
+        <div class="flex items-center gap-1.5 overflow-x-auto text-xs">
+          <button onclick="filterCatalogByCategory('all')" class="cat-pill active px-3 py-1 rounded-full font-medium bg-zinc-900 text-white transition text-[11px]">
+            Semua
+          </button>
+          <button onclick="filterCatalogByCategory('electronics')" class="cat-pill px-3 py-1 rounded-full font-medium bg-zinc-100 text-zinc-600 hover:bg-zinc-200 transition text-[11px]">
+            Elektronik
+          </button>
+          <button onclick="filterCatalogByCategory('fashion')" class="cat-pill px-3 py-1 rounded-full font-medium bg-zinc-100 text-zinc-600 hover:bg-zinc-200 transition text-[11px]">
+            Fashion
+          </button>
+          <button onclick="switchNavTab('vip-deals')" class="px-3 py-1 rounded-full font-medium bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 transition text-[11px] flex items-center gap-1">
+            <i class="fa-solid fa-crown text-[9px]"></i>
+            <span>VIP Deals</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Minimal Product Cards Grid -->
+      <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="col-span-full py-12 text-center text-zinc-400 text-xs">
+          <i class="fa-solid fa-spinner fa-spin text-base mb-2"></i>
+          <p>Memuat katalog...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: FLASH SALE VIP (ABAC TIER GATE) -->
+    <!-- ========================================== -->
+    <section id="view-vip-deals" class="view-panel hidden flex flex-col gap-6">
+      <div class="flex items-center justify-between pb-2 border-b border-zinc-100">
+        <div>
+          <h1 class="text-lg font-bold text-zinc-900 flex items-center gap-2">
+            <span>VIP Deals</span>
+            <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-200">ABAC Gated</span>
+          </h1>
+          <p class="text-xs text-zinc-500 mt-0.5">Penawaran eksklusif khusus akun dengan atribut <code class="font-mono text-zinc-700">tier: 'vip'</code>.</p>
+        </div>
+        <button onclick="fetchVipDeals()" class="px-3 py-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate text-xs"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <!-- Dynamic VIP Container -->
+      <div id="vipProductsContainer"></div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: PESANAN SAYA (ABAC OWNERSHIP & LIFECYCLE) -->
+    <!-- ========================================== -->
+    <section id="view-my-orders" class="view-panel hidden flex flex-col gap-6">
+      <div class="flex items-center justify-between pb-2 border-b border-zinc-100">
+        <div>
+          <h1 class="text-lg font-bold text-zinc-900">Pesanan Saya</h1>
+          <p class="text-xs text-zinc-500 mt-0.5">Riwayat transaksi pesanan akun aktif. Pembatalan dibatasi status <span class="font-mono text-zinc-700">'pending'</span>.</p>
+        </div>
+        <button onclick="loadUserOrders()" class="px-3 py-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition flex items-center gap-1.5">
+          <i class="fa-solid fa-rotate text-xs"></i>
+          <span>Refresh</span>
+        </button>
+      </div>
+
+      <!-- Dynamic Orders Container -->
+      <div id="ordersListContainer" class="flex flex-col gap-3"></div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- HIDDEN COMPATIBILITY CONTAINERS FOR EXISTING TEST SCRIPTS -->
+  <!-- ======================================================== -->
+  <div class="hidden">
+    <span class="badge-200 badge-401 badge-403 badge-404 badge-500"></span>
+    <span id="claimRole"></span><span id="claimTier"></span><span id="claimVerified"></span><span id="claimId"></span>
+    <button id="verifyTokenBtn"></button><button id="launchRealGoogleBtn"></button><button id="tamperTokenBtn"></button>
+    <button id="testAdminMetricsBtn"></button><span id="badge-admin-metrics"></span>
+    <button id="testManageUsersBtn"></button><span id="badge-manage-users"></span>
+    <button id="testCreateProductBtn"></button><span id="badge-create-product"></span>
+    <button id="testPublicCatalogBtn"></button><span id="badge-public-catalog"></span>
+    <button id="testVipDealsBtn"></button><span id="badge-vip-deals"></span>
+    <button id="testViewOrderBtn"></button><span id="badge-view-order"></span>
+    <button id="testCancelPendingBtn"></button><span id="badge-cancel-pending"></span>
+    <button id="testCancelShippedBtn"></button><span id="badge-cancel-shipped"></span>
+    <button id="testDeleteAdminBtn"></button><span id="badge-delete-admin"></span>
+    <button id="testDeleteSellerZeroOrdersBtn"></button><span id="badge-delete-seller-zero"></span>
+    <button id="testDeleteSellerActiveOrdersBtn"></button><span id="badge-delete-seller-active"></span>
+    <button id="testDeleteOtherSellerBtn"></button><span id="badge-delete-other-seller"></span>
+    <button id="testDeleteCustomerBtn"></button><span id="badge-delete-customer"></span>
+    <button id="testRefundSellerUnderLimitBtn"></button><span id="badge-refund-seller-under"></span>
+    <button id="testRefundSellerOverLimitBtn"></button><span id="badge-refund-seller-over"></span>
+    <button id="testRefundAdminOverLimitBtn"></button><span id="badge-refund-admin-over"></span>
+    <button id="logoutBtn"></button>
+    <div id="view-seller-center"></div>
+    <div id="view-admin-panel"></div>
+    <span id="metricUsers"></span><span id="metricProducts"></span><span id="metricRevenue"></span>
+    <table><tbody id="adminUsersTbody"></tbody></table>
+    <div id="sellerOrdersContainer"></div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- FOOTER: MINIMALIST -->
+  <!-- ======================================================== -->
+  <footer class="border-t border-zinc-100 bg-white text-xs text-zinc-400 mt-auto py-5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
+      <div>
+        <span class="font-medium text-zinc-700">Toko Ku</span>
+        <span class="mx-1">&bull;</span>
+        <span>Marketplace Aman &amp; Terpercaya</span>
+      </div>
+      <div>
+        ALP Cyber Security &bull; Mahasiswa: Budiman Nurhadi (1076012514005)
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

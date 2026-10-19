@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toko Ku — Panel Administrator</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-white text-zinc-900 min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- ======================================================== -->
+  <!-- TOP UTILITY BAR: COMPACT PERSONA SWITCHER & NAV -->
+  <!-- ======================================================== -->
+  <aside aria-label="Quick Navigation" class="border-b border-zinc-100 bg-zinc-50/60 text-xs py-2 px-4 sm:px-8">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <!-- Left: Navigation Links -->
+      <div class="flex items-center gap-3 text-[11px] text-zinc-500">
+        <a href="/" class="hover:text-zinc-900 transition flex items-center gap-1 font-medium text-zinc-800">
+          <i class="fa-solid fa-arrow-left text-[10px]"></i>
+          <span>Ke Storefront</span>
+        </a>
+        <span class="text-zinc-300">|</span>
+        <a href="seller.html" class="hover:text-zinc-900 transition">Seller Center</a>
+        <span class="font-medium text-zinc-900">Panel Admin</span>
+        <a href="dashboard.html" class="hover:text-zinc-900 transition">Security Dashboard</a>
+      </div>
+
+      <!-- Right: Persona Switcher -->
+      <div class="flex items-center gap-2 text-[11px]">
+        <span class="text-zinc-400 font-medium hidden md:inline">Akun Demo:</span>
+        <div class="inline-flex items-center gap-1">
+          <button data-persona="admin" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Admin
+          </button>
+          <button data-persona="seller_tech" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Seller Tech
+          </button>
+          <button data-persona="customer_regular" class="persona-btn px-2.5 py-1 rounded-md text-[11px] font-medium border border-zinc-200 bg-white hover:bg-zinc-100 text-zinc-700 transition">
+            Customer
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MAIN NAVBAR: UNIFIED HEADER -->
+  <!-- ======================================================== -->
+  <header class="border-b border-zinc-100 bg-white sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-2 cursor-pointer select-none" onclick="window.location.href='index.html'">
+        <span class="font-bold text-lg tracking-tight text-zinc-900">Toko Ku</span>
+        <span class="text-[10px] font-medium px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-600">Admin</span>
+      </div>
+
+      <!-- Unified Page Navigation -->
+      <nav class="hidden md:flex items-center gap-1 text-xs">
+        <a href="index.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Storefront</a>
+        <a href="seller.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Seller Center</a>
+        <a href="admin.html" class="px-3 py-1.5 rounded-md font-semibold text-zinc-900 bg-zinc-100 transition">Admin Panel</a>
+        <a href="dashboard.html" class="px-3 py-1.5 rounded-md font-medium text-zinc-500 hover:text-zinc-900 transition">Security Lab Matrix</a>
+      </nav>
+
+      <!-- Active Session User Pill & Account Actions -->
+      <div class="flex items-center gap-2">
+        <div id="userProfileCard" class="flex items-center gap-2 px-2.5 py-1 rounded-md border border-zinc-200 text-xs bg-white">
+          <div class="w-5 h-5 rounded-full bg-zinc-900 text-white flex items-center justify-center text-[10px] font-semibold" id="userAvatar">
+            A
+          </div>
+          <span id="profileUsername" class="font-medium text-zinc-800">admin</span>
+          <span id="roleBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200">ADMIN</span>
+          <span id="tierBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">regular</span>
+          <span id="verifiedBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-zinc-100 text-zinc-700 border border-zinc-200">Verified</span>
+        </div>
+
+        <a href="login.html" class="px-2.5 py-1 rounded-md border border-zinc-200 hover:bg-zinc-100 text-zinc-700 transition font-medium text-xs flex items-center gap-1.5" title="Ganti Akun / Switch Persona">
+          <i class="fa-solid fa-users text-zinc-500"></i>
+          <span class="hidden sm:inline">Ganti Akun</span>
+        </a>
+
+        <button onclick="handleLogout()" class="px-2.5 py-1 rounded-md border border-zinc-200 hover:bg-red-50 hover:text-red-600 text-zinc-700 transition font-medium text-xs flex items-center gap-1.5" title="Keluar dari Sesi">
+          <i class="fa-solid fa-arrow-right-from-bracket text-zinc-500"></i>
+          <span class="hidden sm:inline">Logout</span>
+        </button>
+
+        <button id="resetSeedBtn" title="Reset Database ke Baseline Awal" class="p-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-500 hover:text-zinc-900 transition text-xs">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ALERT NOTIFICATION BANNER -->
+  <div id="authAlertBanner" class="hidden border-b border-zinc-200 bg-zinc-50 text-xs transition-all">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 py-2.5 flex items-center justify-between gap-3">
+      <div id="alertBox" class="flex items-center gap-2">
+        <i id="alertIcon" class="fa-solid fa-circle-check text-zinc-700"></i>
+        <div>
+          <span id="alertTitle" class="font-semibold text-zinc-900 mr-1.5">Notifikasi</span>
+          <span id="alertMessage" class="text-zinc-600">Pesan otorisasi...</span>
+        </div>
+      </div>
+      <button onclick="hideAlert()" class="text-zinc-400 hover:text-zinc-600">
+        <i class="fa-solid fa-xmark text-xs"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN ADMIN CONTENT -->
+  <!-- ======================================================== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-8 py-8 flex-1 w-full flex flex-col gap-8">
+
+    <!-- Header Section -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <h1 class="text-lg font-bold text-zinc-900">Panel Administrator</h1>
+          <span id="currentRoleIndicatorAdmin" class="text-[10px] font-mono px-2 py-0.5 rounded font-medium uppercase bg-zinc-100 text-zinc-700 border border-zinc-200">ROLE: ADMIN</span>
+        </div>
+        <p class="text-xs text-zinc-500 mt-0.5">Pengawasan sistem, audit pengguna terdaftar, dan override persetujuan refund.</p>
+      </div>
+      <button onclick="loadAdminMetrics(true); loadAdminUsers(true); loadAdminOrders();" class="px-3 py-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50 text-zinc-700 text-xs font-medium transition flex items-center gap-1.5 self-start sm:self-auto">
+        <i class="fa-solid fa-rotate text-xs"></i>
+        <span>Refresh Data</span>
+      </button>
+    </div>
+
+    <!-- Hidden compatibility anchor -->
+    <div id="adminAccessDenied" class="hidden"></div>
+
+    <!-- Admin Panel Grid -->
+    <div id="adminDashboardContent" class="flex flex-col gap-8">
+      
+      <!-- 3 Minimalist Stat Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="border border-zinc-200 rounded-xl p-4 bg-white">
+          <span class="text-xs text-zinc-500 font-medium">Total Pengguna</span>
+          <div id="metricUsers" class="text-2xl font-bold text-zinc-900 mt-1">0</div>
+        </div>
+
+        <div class="border border-zinc-200 rounded-xl p-4 bg-white">
+          <span class="text-xs text-zinc-500 font-medium">Total Produk</span>
+          <div id="metricProducts" class="text-2xl font-bold text-zinc-900 mt-1">0</div>
+        </div>
+
+        <div class="border border-zinc-200 rounded-xl p-4 bg-white">
+          <span class="text-xs text-zinc-500 font-medium">Omset Platform</span>
+          <div id="metricRevenue" class="text-2xl font-bold text-zinc-900 mt-1">Rp 0</div>
+        </div>
+      </div>
+
+      <!-- Users Audit Table (GET /api/admin/users) -->
+      <div class="border border-zinc-200 rounded-xl p-5 flex flex-col gap-4 bg-white">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div>
+            <h2 class="font-semibold text-sm text-zinc-900">Audit Pengguna Terdaftar</h2>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Memeriksa izin <code>users:manage</code> (Wewenang RBAC Administrator)</p>
+          </div>
+          <button onclick="loadAdminUsers(true)" class="p-1 rounded text-zinc-400 hover:text-zinc-700 transition">
+            <i class="fa-solid fa-rotate text-xs"></i>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr class="border-b border-zinc-200 text-zinc-500 font-medium text-[11px]">
+                <th class="py-2.5 px-3">ID</th>
+                <th class="py-2.5 px-3">Username</th>
+                <th class="py-2.5 px-3">Email</th>
+                <th class="py-2.5 px-3">Role</th>
+                <th class="py-2.5 px-3">Tier</th>
+                <th class="py-2.5 px-3">Status</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersTbody" class="divide-y divide-zinc-100">
+              <!-- Render dinamis tabel pengguna -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- High-Value Refunds Section -->
+      <div class="border border-zinc-200 rounded-xl p-5 flex flex-col gap-4 bg-white">
+        <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
+          <div>
+            <h2 class="font-semibold text-sm text-zinc-900">Persetujuan Refund Nilai Besar (&gt; Rp 500.000)</h2>
+            <p class="text-[11px] text-zinc-500 mt-0.5">Refund bernilai tinggi memerlukan wewenang superuser Administrator.</p>
+          </div>
+          <button onclick="loadAdminOrders()" class="p-1 rounded text-zinc-400 hover:text-zinc-700 transition">
+            <i class="fa-solid fa-rotate text-xs"></i>
+          </button>
+        </div>
+
+        <div id="adminOrdersContainer" class="flex flex-col gap-2">
+          <!-- Dynamic orders -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-zinc-100 bg-white text-xs text-zinc-400 mt-auto py-5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px]">
+      <div>
+        <span class="font-medium text-zinc-700">Toko Ku</span>
+        <span class="mx-1">&bull;</span>
+        <span>Panel Administrator</span>
+      </div>
+      <div>
+        ALP Cyber Security &bull; Mahasiswa: Budiman Nurhadi (1076012514005)
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

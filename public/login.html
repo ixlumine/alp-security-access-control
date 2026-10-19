@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toko Ku — Login &amp; Access Control Lab</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .login-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      background-color: #ffffff;
+    }
+    .demo-chip {
+      cursor: pointer;
+      transition: all 0.15s ease-in-out;
+      user-select: none;
+    }
+    .demo-chip:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    }
+    .form-control:focus {
+      border-color: #0f172a;
+      box-shadow: 0 0 0 0.2rem rgba(15, 23, 42, 0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Simple Brand Header -->
+  <header class="py-3 border-bottom bg-white">
+    <div class="container d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <span class="fw-bold fs-5 text-dark">Toko Ku</span>
+        <span class="badge bg-light text-secondary border">Security Lab</span>
+      </div>
+      <div class="text-muted small">
+        ALP Cyber Security &bull; Mahasiswa: Budiman Nurhadi (1076012514005)
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Login Container -->
+  <main class="container my-auto py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-8 col-lg-5">
+        
+        <div class="login-card p-4 p-sm-5">
+          
+          <!-- Branding Title -->
+          <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-dark text-white mb-3" style="width: 48px; height: 48px;">
+              <i class="fa-solid fa-shield-halved fs-5"></i>
+            </div>
+            <h1 class="h5 fw-bold text-dark mb-1">Toko Ku — Security &amp; Access Control Lab</h1>
+            <p class="text-muted small mb-0">Laboratorium Otorisasi &amp; Keamanan Siber (JWT, OAuth 2.0, RBAC, ABAC)</p>
+          </div>
+
+          <!-- Feedback Alert -->
+          <div id="loginAlert" class="alert alert-danger d-none py-2 px-3 small" role="alert">
+            <div class="d-flex align-items-center gap-2">
+              <i id="loginAlertIcon" class="fa-solid fa-circle-exclamation"></i>
+              <span id="loginAlertMsg">Pesan error...</span>
+            </div>
+          </div>
+
+          <!-- Manual Login Form -->
+          <form id="manualLoginForm" onsubmit="handleManualLogin(event)">
+            <div class="mb-3">
+              <label for="loginUsername" class="form-label small fw-semibold text-secondary">Username atau Email</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0">
+                  <i class="fa-solid fa-user"></i>
+                </span>
+                <input type="text" class="form-control border-start-0 ps-0" id="loginUsername" required placeholder="Contoh: admin atau admin@ecommerce.local">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="loginPassword" class="form-label small fw-semibold text-secondary">Password</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light text-muted border-end-0">
+                  <i class="fa-solid fa-lock"></i>
+                </span>
+                <input type="password" class="form-control border-start-0 border-end-0 ps-0" id="loginPassword" required placeholder="Password...">
+                <button class="btn btn-outline-secondary border-start-0" type="button" onclick="togglePasswordVisibility()">
+                  <i id="passwordToggleIcon" class="fa-solid fa-eye-slash"></i>
+                </button>
+              </div>
+            </div>
+
+            <button type="submit" id="loginSubmitBtn" class="btn btn-dark w-100 fw-semibold py-2 mt-2">
+              <i class="fa-solid fa-right-to-bracket me-1.5"></i> Masuk
+            </button>
+          </form>
+
+          <!-- Quick Demo Auto-Fill Chips (Crucial for Lab Demonstration) -->
+          <div class="mt-4 pt-3 border-top">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <span class="small fw-semibold text-secondary">Quick Demo Auto-Fill (Dosen/Penguji):</span>
+              <span class="text-muted" style="font-size: 11px;">Password: <code class="text-dark">password123</code></span>
+            </div>
+            
+            <div class="d-flex flex-wrap gap-1.5">
+              <button type="button" onclick="fillPersona('admin')" class="demo-chip btn btn-sm btn-outline-dark text-start py-1 px-2" style="font-size: 11px;">
+                <i class="fa-solid fa-crown text-warning me-1"></i><strong>Admin</strong>
+              </button>
+
+              <button type="button" onclick="fillPersona('seller_tech')" class="demo-chip btn btn-sm btn-outline-dark text-start py-1 px-2" style="font-size: 11px;">
+                <i class="fa-solid fa-store text-success me-1"></i><strong>Seller Tech</strong> (Verified)
+              </button>
+
+              <button type="button" onclick="fillPersona('seller_fashion')" class="demo-chip btn btn-sm btn-outline-dark text-start py-1 px-2" style="font-size: 11px;">
+                <i class="fa-solid fa-shirt text-info me-1"></i><strong>Seller Fashion</strong> (Unverified)
+              </button>
+
+              <button type="button" onclick="fillPersona('customer_vip')" class="demo-chip btn btn-sm btn-outline-dark text-start py-1 px-2" style="font-size: 11px;">
+                <i class="fa-solid fa-gem text-primary me-1"></i><strong>Customer VIP</strong>
+              </button>
+
+              <button type="button" onclick="fillPersona('customer_regular')" class="demo-chip btn btn-sm btn-outline-dark text-start py-1 px-2" style="font-size: 11px;">
+                <i class="fa-solid fa-user text-secondary me-1"></i><strong>Customer Regular</strong>
+              </button>
+            </div>
+          </div>
+
+          <!-- Social Login Divider -->
+          <div class="d-flex align-items-center my-3">
+            <hr class="flex-grow-1 my-0 text-muted">
+            <span class="px-2 small text-muted text-uppercase" style="font-size: 10px;">Atau Masuk Melalui</span>
+            <hr class="flex-grow-1 my-0 text-muted">
+          </div>
+
+          <!-- Social Login Buttons -->
+          <div class="d-flex flex-column gap-2">
+            <button type="button" onclick="loginWithMockGoogle()" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-start d-flex align-items-center justify-content-between">
+              <span class="d-flex align-items-center gap-2">
+                <i class="fa-brands fa-google text-danger"></i>
+                <span>Simulasi Mock Google (OAuth 2.0 Lab)</span>
+              </span>
+              <span class="badge bg-light text-dark border">Instant</span>
+            </button>
+
+            <a href="/auth/google" class="btn btn-outline-secondary w-100 py-2 small fw-semibold text-start d-flex align-items-center justify-content-between">
+              <span class="d-flex align-items-center gap-2">
+                <i class="fa-brands fa-google"></i>
+                <span>Login with Real Google (GCP OAuth 2.0)</span>
+              </span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-muted" style="font-size: 11px;"></i>
+            </a>
+          </div>
+
+          <!-- Bottom DB Reset Link -->
+          <div class="text-center mt-4 pt-3 border-top">
+            <button type="button" onclick="resetDatabaseBaseline()" class="btn btn-link text-muted p-0 text-decoration-none" style="font-size: 11px;">
+              <i class="fa-solid fa-rotate-left me-1"></i> Reset Database ke Baseline Awal
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-3 border-top bg-white text-center text-muted small">
+    <div class="container">
+      Toko Ku Marketplace &bull; Laboratorium Keamanan &amp; Kontrol Akses &bull; Node.js Express, SQLite &amp; Bootstrap 5
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Login Logic Script -->
+  <script>
+    const DEMO_PERSONAS = {
+      admin: { username: 'admin', password: 'password123' },
+      seller_tech: { username: 'seller_tech', password: 'password123' },
+      seller_fashion: { username: 'seller_fashion', password: 'password123' },
+      customer_vip: { username: 'customer_vip', password: 'password123' },
+      customer_regular: { username: 'customer_regular', password: 'password123' }
+    };
+
+    // Auto-fill form and optionally focus
+    function fillPersona(key) {
+      const p = DEMO_PERSONAS[key];
+      if (!p) return;
+      document.getElementById('loginUsername').value = p.username;
+      document.getElementById('loginPassword').value = p.password;
+      hideAlert();
+    }
+
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById('loginPassword');
+      const icon = document.getElementById('passwordToggleIcon');
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        icon.className = 'fa-solid fa-eye';
+      } else {
+        pwdInput.type = 'password';
+        icon.className = 'fa-solid fa-eye-slash';
+      }
+    }
+
+    function showAlert(msg, isSuccess = false) {
+      const alertEl = document.getElementById('loginAlert');
+      const msgEl = document.getElementById('loginAlertMsg');
+      const iconEl = document.getElementById('loginAlertIcon');
+
+      msgEl.innerText = msg;
+      if (isSuccess) {
+        alertEl.className = 'alert alert-success py-2 px-3 small';
+        iconEl.className = 'fa-solid fa-circle-check';
+      } else {
+        alertEl.className = 'alert alert-danger py-2 px-3 small';
+        iconEl.className = 'fa-solid fa-circle-exclamation';
+      }
+      alertEl.classList.remove('d-none');
+    }
+
+    function hideAlert() {
+      const alertEl = document.getElementById('loginAlert');
+      if (alertEl) alertEl.classList.add('d-none');
+    }
+
+    async function handleManualLogin(e) {
+      e.preventDefault();
+      hideAlert();
+
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const submitBtn = document.getElementById('loginSubmitBtn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1.5"></i> Memverifikasi...';
+
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('ecommerce_jwt_token', data.token);
+          showAlert(`Login berhasil sebagai ${data.user.username} (${data.user.role.toUpperCase()}). Mengalihkan...`, true);
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 600);
+        } else {
+          showAlert(data.error || 'Login gagal. Periksa username dan password Anda.', false);
+        }
+      } catch (err) {
+        showAlert('Terjadi kesalahan jaringan atau server tidak merespons.', false);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-right-to-bracket me-1.5"></i> Masuk';
+      }
+    }
+
+    async function loginWithMockGoogle() {
+      hideAlert();
+      try {
+        const res = await fetch('/api/auth/mock-google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: 'google.student@gmail.com',
+            name: 'Google Student',
+            tier: 'regular'
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.token) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('ecommerce_jwt_token', data.token);
+          showAlert('Login via Mock Google OAuth berhasil! Mengalihkan...', true);
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 600);
+        } else {
+          showAlert(data.error || 'Gagal melakukan login simulasi Google.', false);
+        }
+      } catch (err) {
+        showAlert('Terjadi kesalahan jaringan.', false);
+      }
+    }
+
+    async function resetDatabaseBaseline() {
+      if (!confirm('Apakah Anda yakin ingin mereset database ke baseline awal?')) return;
+      try {
+        const res = await fetch('/api/seed', { method: 'POST' });
+        if (res.ok) {
+          showAlert('Database berhasil direset ke baseline awal.', true);
+        } else {
+          showAlert('Gagal mereset database.', false);
+        }
+      } catch (err) {
+        showAlert('Gagal menghubungi server.', false);
+      }
+    }
+
+    // Auto-fill default to admin for fast demo convenience if empty
+    window.addEventListener('DOMContentLoaded', () => {
+      // Check if URL has error param from OAuth
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('error') === 'oauth_failed') {
+        showAlert('Autentikasi Google OAuth gagal atau dibatalkan.', false);
+      }
+    });
+  </script>
+</body>
+</html>

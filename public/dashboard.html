@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toko Ku — Security Lab Matrix &amp; Authorization</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .lab-card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      transition: all 0.15s ease-in-out;
+    }
+    .lab-card:hover {
+      border-color: #cbd5e1;
+    }
+    .tab-nav-btn {
+      color: #64748b;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      padding: 0.75rem 1rem;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .tab-nav-btn:hover {
+      color: #0f172a;
+    }
+    .tab-nav-btn.active {
+      color: #0f172a;
+      border-bottom-color: #0f172a;
+      font-weight: 600;
+    }
+    .console-box {
+      background-color: #090d16;
+      color: #cbd5e1;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      border-radius: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ======================================================== -->
+  <!-- TOP UNIFIED NAVBAR -->
+  <!-- ======================================================== -->
+  <header class="py-2.5 px-3 px-sm-4 bg-white border-bottom sticky-top z-3">
+    <div class="container-fluid d-flex flex-wrap align-items-center justify-content-between gap-3">
+      
+      <!-- Brand & Page Nav -->
+      <div class="d-flex align-items-center gap-3">
+        <a href="index.html" class="d-flex align-items-center gap-2 text-decoration-none">
+          <span class="fw-bold fs-5 text-dark">Toko Ku</span>
+          <span class="badge bg-light text-secondary border">Lab Matrix</span>
+        </a>
+
+        <div class="vr d-none d-md-block text-secondary opacity-25"></div>
+
+        <nav class="d-flex align-items-center gap-1 small">
+          <a href="index.html" class="btn btn-sm btn-light text-secondary fw-semibold">Storefront</a>
+          <a href="seller.html" class="btn btn-sm btn-light text-secondary fw-semibold">Seller Center</a>
+          <a href="admin.html" class="btn btn-sm btn-light text-secondary fw-semibold">Admin Panel</a>
+          <a href="dashboard.html" class="btn btn-sm btn-dark fw-semibold">Security Lab Matrix</a>
+        </nav>
+      </div>
+
+      <!-- Right: Active Session Profile Dropdown + Quick Controls -->
+      <div class="d-flex align-items-center gap-2">
+        <div id="userProfileCard" class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-2 py-1 px-2.5 bg-white" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center fw-bold" style="width: 22px; height: 22px; font-size: 11px;" id="userAvatar">U</div>
+            <span id="profileUsername" class="fw-semibold text-dark small">customer_regular</span>
+            <span id="roleBadge" class="badge bg-light text-dark border font-monospace" style="font-size: 10px;">CUSTOMER</span>
+            <span id="tierBadge" class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle" style="font-size: 10px;">regular</span>
+            <span id="verifiedBadge" class="badge bg-success-subtle text-success-emphasis border border-success-subtle" style="font-size: 10px;">Verified</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm small p-2" style="min-width: 220px;">
+            <li class="px-2 py-1 text-muted border-bottom mb-1" style="font-size: 11px;">
+              STATUS OTORISASI AKTIF
+            </li>
+            <li><a class="dropdown-item py-1.5" href="login.html"><i class="fa-solid fa-users me-2 text-primary"></i> Ganti Akun / Switch</a></li>
+            <li><button class="dropdown-item py-1.5" type="button" data-bs-toggle="modal" data-bs-target="#tokenInspectionModal"><i class="fa-solid fa-key me-2 text-warning"></i> Inspeksi Payload Token</button></li>
+            <li><hr class="dropdown-divider my-1"></li>
+            <li><button class="dropdown-item py-1.5 text-danger" type="button" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout</button></li>
+          </ul>
+        </div>
+
+        <button id="resetSeedBtn" title="Reset Database ke Baseline Awal" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 12px;">
+          <i class="fa-solid fa-rotate-left"></i> <span class="d-none d-sm-inline">Reset DB</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- ALERT BANNER -->
+  <!-- ======================================================== -->
+  <div id="authAlertBanner" class="hidden alert alert-light border-bottom mb-0 py-2 text-center small">
+    <div id="alertBox" class="d-inline-flex align-items-center gap-2">
+      <i id="alertIcon" class="fa-solid fa-circle-check"></i>
+      <span id="alertTitle" class="fw-bold"></span>
+      <span id="alertMessage"></span>
+      <button onclick="hideAlert()" class="btn-close ms-2" style="font-size: 9px;"></button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MAIN CONTAINER -->
+  <!-- ======================================================== -->
+  <main class="container py-4 flex-grow-1">
+
+    <!-- Header Section -->
+    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 pb-3 mb-4 border-bottom">
+      <div>
+        <h1 class="h5 fw-bold text-dark mb-1">Security Lab Matrix &amp; Authorization Inspector</h1>
+        <p class="text-muted small mb-0">Laboratorium verifikasi interaktif 4 pilar kontrol akses: Token Bearer JWT, RBAC, ABAC, dan Combined Controls.</p>
+      </div>
+
+      <!-- Quick Persona Chips -->
+      <div class="d-flex flex-wrap align-items-center gap-1">
+        <span class="small text-muted me-1 d-none d-lg-inline">One-Click Persona Switcher:</span>
+        <button data-persona="admin" class="persona-btn btn btn-sm btn-outline-secondary py-0.5 px-2 font-monospace" style="font-size: 11px;">Admin</button>
+        <button data-persona="seller_tech" class="persona-btn btn btn-sm btn-outline-secondary py-0.5 px-2 font-monospace" style="font-size: 11px;">Seller Tech</button>
+        <button data-persona="seller_fashion" class="persona-btn btn btn-sm btn-outline-secondary py-0.5 px-2 font-monospace" style="font-size: 11px;">Seller Fashion</button>
+        <button data-persona="customer_vip" class="persona-btn btn btn-sm btn-outline-secondary py-0.5 px-2 font-monospace" style="font-size: 11px;">VIP</button>
+        <button data-persona="customer_regular" class="persona-btn btn btn-sm btn-outline-secondary py-0.5 px-2 font-monospace" style="font-size: 11px;">Customer</button>
+        <button data-persona="mock_google" class="persona-btn btn btn-sm btn-outline-secondary py-0.5 px-2 font-monospace" style="font-size: 11px;">Google</button>
+      </div>
+    </div>
+
+    <!-- TAB NAVIGATION BAR -->
+    <div class="d-flex border-bottom mb-4 overflow-x-auto gap-2">
+      <button data-tab="tab-jwt" class="tab-btn tab-nav-btn active">
+        <i class="fa-solid fa-key me-1"></i> #1 Access Token (JWT &amp; OAuth)
+      </button>
+      <button data-tab="tab-rbac" class="tab-btn tab-nav-btn">
+        <i class="fa-solid fa-user-shield me-1"></i> #2 RBAC (Role Barriers)
+      </button>
+      <button data-tab="tab-abac" class="tab-btn tab-nav-btn">
+        <i class="fa-solid fa-sliders me-1"></i> #3 ABAC (Context Gates)
+      </button>
+      <button data-tab="tab-combined" class="tab-btn tab-nav-btn">
+        <i class="fa-solid fa-layer-group me-1"></i> #4 Combined Controls (RBAC+ABAC)
+      </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: ACCESS TOKEN (JWT & OAUTH 2.0) -->
+    <!-- ========================================== -->
+    <section id="tab-jwt" class="tab-content mb-4">
+      <div class="row g-4">
+        <!-- Token Summary Card (De-cluttered) -->
+        <div class="col-12 col-lg-7">
+          <div class="lab-card p-4 h-100 d-flex flex-col justify-content-between">
+            <div>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="p-2 rounded bg-dark text-white"><i class="fa-solid fa-fingerprint"></i></span>
+                  <div>
+                    <h2 class="h6 fw-bold text-dark mb-0">Active Signed Bearer Token (JWT)</h2>
+                    <span class="text-muted" style="font-size: 11px;">Algoritma: HMAC-SHA256 (HS256)</span>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-sm btn-dark" data-bs-toggle="modal" data-bs-target="#tokenInspectionModal">
+                  <i class="fa-solid fa-code me-1"></i> Inspeksi Payload Token
+                </button>
+              </div>
+
+              <div class="p-3 bg-light rounded border mb-3 small">
+                <div class="row g-2">
+                  <div class="col-6 col-sm-3">
+                    <span class="text-muted d-block" style="font-size: 11px;">SUBJECT ID</span>
+                    <strong class="font-monospace text-dark" id="claimId">-</strong>
+                  </div>
+                  <div class="col-6 col-sm-3">
+                    <span class="text-muted d-block" style="font-size: 11px;">ROLE CLAIM</span>
+                    <strong class="font-monospace text-primary text-uppercase" id="claimRole">-</strong>
+                  </div>
+                  <div class="col-6 col-sm-3">
+                    <span class="text-muted d-block" style="font-size: 11px;">TIER CLAIM</span>
+                    <strong class="font-monospace text-warning-emphasis" id="claimTier">-</strong>
+                  </div>
+                  <div class="col-6 col-sm-3">
+                    <span class="text-muted d-block" style="font-size: 11px;">VERIFIED CLAIM</span>
+                    <strong class="font-monospace text-success" id="claimVerified">-</strong>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-muted small mb-0">
+                Token ditandatangani oleh server saat autentikasi valid dan dikirimkan pada setiap request melalui header <code class="text-dark">Authorization: Bearer &lt;token&gt;</code>.
+              </p>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 pt-3 mt-3 border-top">
+              <button id="verifyTokenBtn" class="btn btn-sm btn-outline-dark">
+                <i class="fa-solid fa-circle-check me-1"></i> Uji GET /api/auth/me
+              </button>
+              <button id="launchRealGoogleBtn" class="btn btn-sm btn-outline-danger">
+                <i class="fa-brands fa-google me-1"></i> Uji Real Google OAuth
+              </button>
+              <button id="tamperTokenBtn" class="btn btn-sm btn-outline-warning">
+                <i class="fa-solid fa-triangle-exclamation me-1"></i> Tamper / Corrupt Token
+              </button>
+              <button id="copyTokenBtn" class="btn btn-sm btn-light border text-secondary ms-auto">
+                <i class="fa-regular fa-copy me-1"></i> Salin Token
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Token Information Explainer Card -->
+        <div class="col-12 col-lg-5">
+          <div class="lab-card p-4 h-100">
+            <h3 class="h6 fw-bold text-dark mb-2"><i class="fa-solid fa-circle-info text-primary me-2"></i>Mekanisme Autentikasi</h3>
+            <p class="text-muted small mb-3">Sistem menggunakan arsitektur Stateless Token-based Security dengan proteksi tampering berbasis cryptographic signature.</p>
+            
+            <ul class="list-unstyled small text-secondary d-flex flex-column gap-2 mb-0">
+              <li class="d-flex align-items-start gap-2">
+                <i class="fa-solid fa-check text-success mt-1"></i>
+                <span><strong>Header:</strong> Menentukan tipe token JWT dan algoritma signing HMAC-SHA256.</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="fa-solid fa-check text-success mt-1"></i>
+                <span><strong>Payload:</strong> Menyimpan claims identitas (`id`, `username`, `role`, `tier`, `is_verified`).</span>
+              </li>
+              <li class="d-flex align-items-start gap-2">
+                <i class="fa-solid fa-check text-success mt-1"></i>
+                <span><strong>Signature:</strong> Memvalidasi integritas. Jika token diubah sengaja (Tampered), server merespons <strong>403 Forbidden</strong>.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: ROLE-BASED ACCESS CONTROL (RBAC) -->
+    <!-- ========================================== -->
+    <section id="tab-rbac" class="tab-content hidden mb-4">
+      <div class="p-3 bg-white border rounded mb-3 small d-flex align-items-center gap-2 text-muted">
+        <i class="fa-solid fa-circle-info text-primary"></i>
+        <span><strong>RBAC (Role-Based Access Control):</strong> Hak akses ditentukan murni berdasarkan role pengguna (`admin`, `seller`, `customer`) melalui middleware <code class="text-dark">requireRole()</code> &amp; <code class="text-dark">requirePermission()</code>.</span>
+      </div>
+
+      <div class="row g-3">
+        <!-- RBAC 1: Metrics -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">Platform Financial Analytics</h4>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle small font-monospace">Admin Only</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">GET /api/admin/metrics</code></p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>200 OK</strong> untuk Admin | <strong>403 Forbidden</strong> untuk Seller &amp; Customer</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testAdminMetricsBtn" class="btn btn-sm btn-dark"><i class="fa-solid fa-play me-1"></i> Uji Metrics</button>
+              <span id="badge-admin-metrics" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RBAC 2: Manage Users -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">User Directory &amp; Audit Log</h4>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle small font-monospace">Permission: users:manage</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">GET /api/admin/users</code></p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>200 OK</strong> untuk Admin | <strong>403 Forbidden</strong> untuk Seller &amp; Customer</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testManageUsersBtn" class="btn btn-sm btn-dark"><i class="fa-solid fa-play me-1"></i> Uji Audit Pengguna</button>
+              <span id="badge-manage-users" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RBAC 3: Create Product -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">Publikasi Produk Katalog</h4>
+                <span class="badge bg-primary-subtle text-primary border border-primary-subtle small font-monospace">Admin &amp; Seller</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">POST /api/products</code></p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>201 Created</strong> untuk Admin &amp; Seller | <strong>403 Forbidden</strong> untuk Customer</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testCreateProductBtn" class="btn btn-sm btn-dark"><i class="fa-solid fa-play me-1"></i> Uji Tambah Produk</button>
+              <span id="badge-create-product" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RBAC 4: Public Catalog -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">Katalog Terbuka Publik</h4>
+                <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle small font-monospace">Semua Role / Publik</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">GET /api/products</code></p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>200 OK</strong> untuk seluruh pengguna terdaftar maupun guest</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testPublicCatalogBtn" class="btn btn-sm btn-outline-dark"><i class="fa-solid fa-play me-1"></i> Uji Katalog Publik</button>
+              <span id="badge-public-catalog" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: ATTRIBUTE-BASED ACCESS CONTROL (ABAC) -->
+    <!-- ========================================== -->
+    <section id="tab-abac" class="tab-content hidden mb-4">
+      <div class="p-3 bg-white border rounded mb-3 small d-flex align-items-center gap-2 text-muted">
+        <i class="fa-solid fa-circle-info text-warning"></i>
+        <span><strong>ABAC (Attribute-Based Access Control):</strong> Hak akses mengevaluasi parameter atribut dinamis: subject attributes (`tier == 'vip'`), resource ownership (`order.customer_id == user.id`), dan lifecycle state (`status == 'pending'`).</span>
+      </div>
+
+      <div class="row g-3">
+        <!-- ABAC 1: VIP Deals -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">VIP Exclusive Deals Catalog</h4>
+                <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle small font-monospace">Subject: tier == 'vip'</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">GET /api/products/vip-deals</code></p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>200 OK</strong> untuk Customer VIP | <strong>403 Forbidden</strong> untuk Customer Regular</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testVipDealsBtn" class="btn btn-sm btn-dark"><i class="fa-solid fa-crown me-1 text-warning"></i> Akses VIP Deals</button>
+              <span id="badge-vip-deals" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ABAC 2: View Order -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">Lihat Detail Pesanan (#1)</h4>
+                <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle small font-monospace">Resource: customer_id == user.id</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">GET /api/orders/1</code> (Milik <strong>customer_regular</strong>)</p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>200 OK</strong> untuk customer_regular, seller &amp; admin | <strong>403 Forbidden</strong> untuk customer_vip</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testViewOrderBtn" class="btn btn-sm btn-dark"><i class="fa-solid fa-receipt me-1"></i> Uji Lihat Order #1</button>
+              <span id="badge-view-order" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ABAC 3: Cancel Pending Order -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">Batalkan Pesanan Pending (#1)</h4>
+                <span class="badge bg-success-subtle text-success-emphasis border border-success-subtle small font-monospace">Status: 'pending'</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">POST /api/orders/1/cancel</code></p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>200 OK</strong> untuk pemilik pesanan (status berubah menjadi 'cancelled')</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testCancelPendingBtn" class="btn btn-sm btn-dark"><i class="fa-solid fa-ban me-1"></i> Batalkan Order (Pending)</button>
+              <span id="badge-cancel-pending" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ABAC 4: Cancel Shipped Order -->
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h4 class="h6 fw-bold text-dark mb-0">Batalkan Pesanan Shipped (#2)</h4>
+                <span class="badge bg-danger-subtle text-danger border border-danger-subtle small font-monospace">Status: 'shipped' (Restricted)</span>
+              </div>
+              <p class="text-muted small mb-1">Endpoint: <code class="text-dark">POST /api/orders/2/cancel</code> (Status sudah dikirim)</p>
+              <span class="text-muted" style="font-size: 11px;">Expected: <strong>403 Forbidden</strong> (hanya pesanan berstatus 'pending' yang boleh dibatalkan)</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testCancelShippedBtn" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-ban me-1"></i> Uji Batal Order (Shipped)</button>
+              <span id="badge-cancel-shipped" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: COMBINED CONTROLS (RBAC + ABAC) -->
+    <!-- ========================================== -->
+    <section id="tab-combined" class="tab-content hidden mb-4">
+      <div class="p-3 bg-white border rounded mb-3 small d-flex align-items-center gap-2 text-muted">
+        <i class="fa-solid fa-circle-info text-info"></i>
+        <span><strong>Combined Controls:</strong> Menggabungkan role subjek dengan kondisi atribut resource kontekstual secara compound (contoh: plafon nilai refund &le; Rp 500.000 untuk seller).</span>
+      </div>
+
+      <!-- Policy Matrix 1: Product Deletion -->
+      <h5 class="h6 fw-bold text-dark mb-2">Matriks 1: Kebijakan Penghapusan Produk (RBAC + ABAC)</h5>
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md-4">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace small mb-1">Global Admin</span>
+              <p class="fw-semibold text-dark mb-1 small">Admin Delete Any Product</p>
+              <span class="text-muted" style="font-size: 11px;">Admin bebas menghapus produk tanpa batas pesanan aktif (200 OK).</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testDeleteAdminBtn" class="btn btn-sm btn-dark">Uji Admin Delete</button>
+              <span id="badge-delete-admin" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace small mb-1">Seller Owns + 0 Orders</span>
+              <p class="fw-semibold text-dark mb-1 small">Seller Tech Hapus Produk Sendiri</p>
+              <span class="text-muted" style="font-size: 11px;">Diizinkan jika produk milik sendiri dan 0 pesanan aktif (200 OK).</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testDeleteSellerZeroOrdersBtn" class="btn btn-sm btn-dark">Uji Seller 0 Order</button>
+              <span id="badge-delete-seller-zero" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace small mb-1">Seller Owns + Has Orders</span>
+              <p class="fw-semibold text-dark mb-1 small">Seller Hapus Produk dengan Pesanan Aktif</p>
+              <span class="text-muted" style="font-size: 11px;">Ditolak jika produk masih memiliki pesanan aktif (403 Forbidden).</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testDeleteSellerActiveOrdersBtn" class="btn btn-sm btn-outline-danger">Uji Pesanan Aktif</button>
+              <span id="badge-delete-seller-active" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden compatibility buttons for e2e tests -->
+      <div class="d-none">
+        <button id="testDeleteOtherSellerBtn"></button><span id="badge-delete-other-seller"></span>
+        <button id="testDeleteCustomerBtn"></button><span id="badge-delete-customer"></span>
+      </div>
+
+      <!-- Policy Matrix 2: Refund Approval -->
+      <h5 class="h6 fw-bold text-dark mb-2">Matriks 2: Plafon Batas Nilai Persetujuan Refund (Plafon Rp 500.000)</h5>
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace small mb-1">Seller Owns &le; Rp 500.000</span>
+              <p class="fw-semibold text-dark mb-1 small">Seller Fashion Setujui Refund Rp 350.000</p>
+              <span class="text-muted" style="font-size: 11px;">Nominal di bawah plafon wewenang seller (200 OK).</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testRefundSellerUnderLimitBtn" class="btn btn-sm btn-dark">Uji Nilai &le; 500k</button>
+              <span id="badge-refund-seller-under" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="lab-card p-3 d-flex flex-column justify-content-between h-100 gap-3">
+            <div>
+              <span class="badge bg-danger-subtle text-danger border border-danger-subtle font-monospace small mb-1">Seller Owns &gt; Rp 500.000</span>
+              <p class="fw-semibold text-dark mb-1 small">Seller Tech Setujui Refund Rp 12.000.000</p>
+              <span class="text-muted" style="font-size: 11px;">Nominal melampaui limit wewenang seller (403 Forbidden).</span>
+            </div>
+            <div class="d-flex align-items-center justify-content-between pt-2 border-top">
+              <button id="testRefundSellerOverLimitBtn" class="btn btn-sm btn-outline-danger">Uji Seller &gt; 500k</button>
+              <span id="badge-refund-seller-over" class="small font-monospace text-muted">Pending</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="d-none">
+          <button id="testRefundAdminOverLimitBtn"></button><span id="badge-refund-admin-over"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- HTTP INSPECTOR CARD (DE-CLUTTERED CONSOLE) -->
+    <!-- ========================================== -->
+    <section class="lab-card overflow-hidden mt-4">
+      <div class="bg-light px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge bg-dark font-monospace" style="font-size: 10px;">HTTP INSPECTOR</span>
+          <span class="small text-muted fw-semibold">Live Traffic &amp; Decision Audit Log</span>
+        </div>
+        <button id="clearConsoleBtn" class="btn btn-sm btn-light border text-secondary py-0 px-2" style="font-size: 11px;">
+          <i class="fa-solid fa-broom me-1"></i> Bersihkan Log
+        </button>
+      </div>
+
+      <div id="httpConsole" class="console-box p-3 small overflow-y-auto" style="max-height: 220px; font-size: 11px;">
+        <div class="text-muted italic">// Menunggu interaksi HTTP... Klik salah satu tombol pengujian atau login di atas.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: INSPEKSI PAYLOAD TOKEN JWT (De-clutter Dialog) -->
+  <!-- ======================================================== -->
+  <div class="modal fade" id="tokenInspectionModal" tabindex="-1" aria-labelledby="tokenInspectionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header border-bottom pb-2">
+          <h5 class="modal-title fs-6 fw-bold text-dark d-flex align-items-center gap-2" id="tokenInspectionModalLabel">
+            <i class="fa-solid fa-key text-primary"></i> Inspeksi Payload Token JWT
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3">
+            <label class="form-label small fw-bold text-secondary mb-1">Raw Encoded Token (RFC 7519)</label>
+            <textarea id="rawTokenInput" readonly class="form-control font-monospace small bg-light text-primary" rows="3" placeholder="Token tidak tersedia..."></textarea>
+          </div>
+
+          <div>
+            <label class="form-label small fw-bold text-secondary mb-1">Decoded Claims &amp; Payload Data</label>
+            <div class="bg-dark text-success-emphasis p-3 rounded font-monospace small overflow-x-auto" style="max-height: 220px;">
+              <pre id="decodedClaimsViewer" class="mb-0 text-info font-monospace small">// Belum ada token aktif...</pre>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-top pt-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="py-3 border-top bg-white text-center text-muted small mt-auto">
+    <div class="container">
+      Toko Ku &bull; ALP Cyber Security &bull; Mahasiswa: Budiman Nurhadi (1076012514005) &bull; Node.js, Express, SQLite, Bootstrap 5
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 Bundle JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Application JS Controller -->
+  <script src="app.js"></script>
+</body>
+</html>
